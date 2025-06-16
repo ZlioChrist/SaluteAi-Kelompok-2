@@ -1,0 +1,33 @@
+import pickle
+import os
+
+# Load model
+with open('model/food_model.pkl', 'rb') as f:
+    vectorizer, model = pickle.load(f)
+
+# Fungsi prediksi
+def prediksi_kesehatan(teks_input):
+    teks_bersih = teks_input.lower().strip()
+    X = vectorizer.transform([teks_bersih])
+    prediksi = model.predict(X)[0]
+    return prediksi
+
+# Contoh input untuk diuji
+contoh = [
+    "nasi goreng",
+    "sate",
+    "jus jeruk",
+    "martabak",
+    "apel",
+    "chiki",
+    "teh",
+    "ayam bakar",
+    "kol",
+    "donat",
+    "semangka"
+]
+
+print("🧪 Hasil Uji Model Sehat/Tidak Sehat:\n")
+for item in contoh:
+    hasil = prediksi_kesehatan(item)
+    print(f"- {item}: {hasil}")

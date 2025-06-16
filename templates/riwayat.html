@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Riwayat Deteksi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        padding: 40px 20px;
+        margin: 0;
+        transition: background 0.3s, color 0.3s;
+        background: url("images/f3.jpg") no-repeat center center fixed;
+        background-size: cover;
+        color: var(--text-color);
+      }
+
+      /* Definisikan variabel default */
+      :root {
+        --bg-color: transparent; /* tidak dipakai karena pake gambar */
+        --text-color: #333;
+        --card-bg: white;
+        --card-hover: #e8f5e9;
+      }
+
+      body.dark {
+        --bg-color: #121212;
+        --text-color: #e0e0e0;
+        --card-bg: #1f1f1f;
+        --card-hover: #2e7d32;
+        background: var(--bg-color); /* override background gambar */
+      }
+
+      h2 {
+        text-align: center;
+        color: #2e7d32;
+        font-size: 2.2rem;
+        margin-bottom: 25px;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+        max-width: 950px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .controls input,
+      .controls button {
+        font-family: "Poppins", sans-serif;
+        font-size: 1rem;
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+
+      .controls input {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .controls button {
+        cursor: pointer;
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+      }
+
+      .controls button:hover {
+        background-color: #1b5e20;
+      }
+
+      table {
+        width: 100%;
+        max-width: 950px;
+        margin: auto;
+        border-collapse: collapse;
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      th,
+      td {
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background: linear-gradient(45deg, #43a047, #2e7d32);
+        color: white;
+      }
+
+      tr:hover {
+        background-color: var(--card-hover);
+      }
+
+      a {
+        display: inline-block;
+        margin: 30px auto 0;
+        text-align: center;
+        width: 100%;
+        color: #2e7d32;
+        font-weight: bold;
+        font-size: 1.1rem;
+        text-decoration: none;
+      }
+
+      .toggle-dark {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2e7d32;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 8px 14px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .toggle-dark:hover {
+        background: #1b5e20;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="toggle-dark" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+
+    <h2>Riwayat Deteksi</h2>
+
+    <div class="controls">
+      <input
+        type="text"
+        id="searchInput"
+        onkeyup="filterTable()"
+        placeholder="Cari nama makanan..."
+      />
+      <button onclick="exportTableToExcel()">📤 Ekspor Excel</button>
+    </div>
+
+    <table id="riwayatTable">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Status Kesehatan</th>
+          <th>Waktu</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in daftar_riwayat %}
+        <tr>
+          <td>{{ item.nama_makanan }}</td>
+          <td>{{ item.hasil }}</td>
+          <td>{{ item.waktu.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="{{ url_for('index') }}">← Kembali ke Beranda</a>
+
+    <script>
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark");
+      }
+
+      function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById("riwayatTable");
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+          const td = rows[i].getElementsByTagName("td")[0];
+          if (td) {
+            const txtValue = td.textContent || td.innerText;
+            rows[i].style.display = txtValue.toLowerCase().includes(filter)
+              ? ""
+              : "none";
+          }
+        }
+      }
+
+      function exportTableToExcel() {
+        const table = document.getElementById("riwayatTable");
+        const rows = table.querySelectorAll("tr");
+        let csv = [];
+
+        rows.forEach((row) => {
+          const cols = row.querySelectorAll("th, td");
+          let rowData = [];
+          cols.forEach((col) => rowData.push('"' + col.innerText + '"'));
+          csv.push(rowData.join(","));
+        });
+
+        const blob = new Blob([csv.join("\n")], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "riwayat_deteksi.csv";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    </script>
+  </body>
+</html>

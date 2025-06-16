@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Saran Makanan Sehat</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background-image: url('{{ url_for("static", filename="images/f3.jpg") }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      body.dark .wrapper {
+        background-color: rgba(30, 30, 30, 0.85);
+        color: #f0f0f0;
+      }
+
+      body.dark .card {
+        background-color: #2c2c2c;
+        border-left: 8px solid #8bc34a;
+        color: #e0e0e0;
+      }
+
+      /* DARK MODE: Tombol kembali */
+      body.dark .back-btn {
+        background-color: #2e7d32;
+        color: #fff;
+        border-color: #81c784;
+      }
+
+      body.dark .back-btn:hover {
+        background-color: #388e3c;
+      }
+
+      /* Tambahkan transisi biar halus */
+      .wrapper,
+      .card,
+      .back-btn {
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .wrapper {
+        max-width: 800px;
+        margin: 60px auto;
+        background-color: white;
+        border-radius: 20px;
+        padding: 40px 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        color: #2f7d32;
+      }
+
+      .header p {
+        font-size: 1.05rem;
+        color: #555;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+        margin-top: 25px;
+      }
+
+      .card {
+        background-color: #f5fce8;
+        border-left: 8px solid #b6e388;
+        border-radius: 12px;
+        padding: 15px 20px;
+        font-size: 1rem;
+        color: #333;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .card span.emoji {
+        font-size: 1.3rem;
+        margin-right: 10px;
+      }
+
+      .back-btn {
+        display: inline-block;
+        margin-top: 30px;
+        background-color: #d6f5c9;
+        border: 2px solid #5cb85c;
+        color: #2d6a2d;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .back-btn:hover {
+        background-color: #b8ecb4;
+      }
+
+      /* === Tombol Mode Gelap/Terang yang Diperindah === */
+      .mode-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(8px);
+        border: 2px solid #ccc;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .mode-toggle:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: scale(1.1);
+        border-color: #aaa;
+      }
+
+      body.dark .mode-toggle {
+        background: rgba(0, 0, 0, 0.4);
+        color: #fff;
+        border-color: #444;
+      }
+
+      body.dark .mode-toggle:hover {
+        background: rgba(60, 60, 60, 0.7);
+      }
+    </style>
+  </head>
+  <body class="{{ 'dark' if dark_mode else '' }}">
+    <form method="post" action="{{ url_for('saran_page') }}">
+      <button class="mode-toggle" name="dark_mode" type="submit">
+        {{ '☀️' if dark_mode else '🌙' }}
+      </button>
+    </form>
+
+    <div class="wrapper">
+      <div class="header">
+        <h1>🍎 Saran Makanan Lebih Sehat</h1>
+        <p>Berikut ini beberapa pilihan yang bisa kamu coba:</p>
+      </div>
+
+      {% if daftar_saran %}
+      <div class="grid">
+        {% for kategori, daftar_makanan in daftar_saran.items() %} {% for nama,
+        saran in daftar_makanan.items() %}
+        <div class="card">
+          <span class="emoji">
+            {% if kategori.lower() == 'makanan' %} 🍽️ {% elif kategori.lower()
+            == 'minuman' %} 🥤 {% elif kategori.lower() == 'sayur' %} 🥬 {% elif
+            kategori.lower() == 'buah' %} 🍎 {% elif kategori.lower() == 'snack'
+            %} 🍿 {% else %} ❓ {% endif %}
+          </span>
+          {{ saran }}
+        </div>
+        {% endfor %} {% endfor %}
+      </div>
+      {% else %}
+      <p>
+        Tidak ada saran yang tersedia. Silakan coba kembali dari halaman utama.
+      </p>
+      {% endif %}
+
+      <a href="{{ url_for('index') }}" class="back-btn">← Kembali ke Beranda</a>
+    </div>
+  </body>
+</html>
